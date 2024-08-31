@@ -5,39 +5,47 @@
 <link rel=“icon” href=“/static/favicon.ico”>
 <title>Assignment 1 (HTML) - CS 3550</title>
 
+<!-- Nav Bar -->
 <header>
+    <h1>CS 3550</h1>
     <nav>
         <ul>
-            <li><h1>CS 3550</h1></li>
             <li><a href="/static/index.html">Assignments</a></li>
-            <div></div>
             <li><a href="/static/profile.html">Profile</a></li>
         </ul>
     </nav>
 </header>
 
-<h2>HOMEWORK 1 (HTML)</h2>
-Due September 08, total of 100 points.
-
-<div>
-    <p>Currently 2/3 submission</p>
+<!-- Title and Description -->
+<div role="title">
+    <h2>HOMEWORK 1 (HTML)</h2>
+    <p>Due September 08, total of 100 points.</p>
 </div>
 
-<h4>Description</h4>
+<!-- Action Box -->
+<div role="action box">
+    <p>Currently 2/3 submissions</p>
+    <p>1 submission assigned to you <a href="/static/submissions.html" role="button">Grade</a> </p>
+</div>
 
-<p>
-    In this assignment, you will set up a web server serving HTML web pages for the grading application:
-</p>
+<!-- Paragraphs and Image -->
+<main>
+    <h3>Description</h3>
 
-<nav>
-    <ul>
-        <li>Configure and start a <em>basic web server</em> using Django</li>
-        <li>Create <em>basic web pages</em> using HTML for for data/content</li>
-    </ul>
-</nav>
+    <p>In this assignment, you will set up a web server serving HTML web pages for the grading application:</p>
 
-<p>
-    For example, here is a page <strong>you will make,</strong> in a file called <code>assignments.html</code>:
-</p>
+    <nav>
+        <ul>
+            <li>Configure and start a <em>basic web server</em> using Django</li>
+            <li>Create <em>basic web pages</em> using HTML for data/content</li>
+        </ul>
+    </nav>
 
-<img src="/static/assignment.png">
+    <p>For example, here is a page <strong>you will make,</strong> in a file called <code>assignments.html</code>:</p>
+
+    <img src="/static/assignment.png" 
+    alt="You will create a heading for 'Homework 1 (HTML)' and write the deadline and the total score for the assignment 
+        below the heading. Create an action box describing the number of submissions and the number that are assigned for you 
+        to grade. Also include a 'Grade' button using the 'a' tag. Below that, use a subheading for the 'Description' and proceed 
+        to give a detailed overview of what is expected for grading.">
+</main>
