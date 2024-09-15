@@ -10,31 +10,35 @@
 
 <!-- Nav Bar -->
 <header>
-    <h1>CS 3550</h1>
-    <nav>
-        <ul>
-            <li><a href="/static/index.html">Assignments</a></li>
-            <li><a href="/static/profile.html">Profile</a></li>
-        </ul>
-    </nav>
+    <div class="nav-content">
+        <div id="left-nav">
+            <h1>CS 3550</h1>
+            <a href="/static/index.html">Assignments</a>
+        </div>
+        <div id="right-nav">
+            <a href="/static/profile.html">Profile</a>
+        </div>
+    </div>
 </header>
 
-<!-- Title and Description -->
-<div class="title">
-    <h2>Log in</h2>
-</div>
+<div class="content">
+    <!-- Title and Description -->
+    <div class="title">
+        <h2>Log in</h2>
+    </div>
 
-<!-- Login Prompts -->
-<form id="login-form">
-    <div class="login-row">
-        <label for="username">Username:</label>
-        <input id="username" autofocus>
-    </div>
-    <div class="login-row">
-        <label for="password">Password:</label>
-        <input id="password" type="password">
-    </div> 
-    <div class="login-row">
-        <button>Log in</button>
-    </div>
-</form>
+    <!-- Login Prompts -->
+    <form id="login-form">
+        <div class="login-row">
+            <label for="username">Username:</label>
+            <input id="username" autofocus>
+        </div>
+        <div class="login-row">
+            <label for="password">Password:</label>
+            <input id="password" type="password">
+        </div> 
+        <div class="login-row">
+            <button>Log in</button>
+        </div>
+    </form>
+</div>

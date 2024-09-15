@@ -14,7 +14,9 @@ body {
 }
 
 main {
-    margin: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
 }
 
 code {
@@ -28,6 +30,7 @@ p li {
 img {
     margin-top: 1rem;
     margin-bottom: 1rem;
+    width: 100%;
 }
 
 table {
@@ -50,7 +53,9 @@ header {
     box-shadow: 0px 0px 5px gray;
     display: flex;
     flex-direction: row;
+    justify-content: flex-start;
     align-items: center;
+    width: 100%;
     gap: 1rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
@@ -58,33 +63,57 @@ header {
     padding-right: 1rem;
 }
 
+.nav-content {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+#left-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 header h1 {
     font-weight: bold;
     color: black;
     font-size: 1.25rem;
+    margin: 0rem;
+}
+
+header nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
 }
 
 header nav ul {
     display: flex;
     flex-direction: row;
-    list-style: none;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 
-header nav a {
+header a {
     color: #444;
     text-decoration: none;
     font-weight: 400;
 }
 
-header nav a:hover {
+header a:hover {
     text-decoration: underline;
 }
 
 .title {
     font-size: 1.5rem;
     margin-top: 3rem;
-    margin-bottom: 1rem;
     margin-left: 1rem;
     margin-right: 1rem;
 }
@@ -107,6 +136,7 @@ header nav a:hover {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin-top: 1rem;
 }
 
 .login-row {
@@ -129,8 +159,14 @@ header nav a:hover {
     background-color: #b1c3de;
     border-color: #204a87;
     border-style: solid;
-    padding: 1rem;
-    margin: 1rem;
+    padding: 0.5rem;
+    margin-top: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.action-box p {
+    margin: 0.5rem;
 }
 
 .action-box div {
@@ -138,4 +174,14 @@ header nav a:hover {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+#submit-button {
+    margin: 1rem;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    max-width: 50rem;
 }
