@@ -7,13 +7,33 @@ body {
     font-size: 1rem;
 }
 
+html, 
+body {
+    margin: 0rem;
+    padding: 0rem;
+}
+
+main {
+    margin: 1rem;
+}
+
 code {
     font-family: "IBM Plex Mono", monospace;
 }
 
+p li {
+    margin-bottom: 1rem;
+}
+
+img {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
 table {
     line-height: 1.5;
-    width: 100%;
+    width: calc(100% - 2rem);
+    margin: 1rem;
 }
 
 th {
@@ -26,31 +46,60 @@ th {
 
 header {
     font-size: 1.25rem;
+    background-color: #ddd;
+    box-shadow: 0px 0px 5px gray;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
 }
 
 header h1 {
     font-weight: bold;
+    color: black;
+    font-size: 1.25rem;
+}
+
+header nav ul {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    justify-content: space-between;
 }
 
 header nav a {
-    color: darkgray;
+    color: #444;
     text-decoration: none;
+    font-weight: 400;
 }
 
 header nav a:hover {
     text-decoration: underline;
 }
 
-header ul {
-    list-style: none;
-}
-
 .title {
     font-size: 1.5rem;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.title h2 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 0rem;
+    padding-bottom: 0rem;
 }
 
 .title p {
     font-size: 1rem;
+    margin-top: 0rem;
+    padding-top: 0rem;
 }
 
 #login-form {
@@ -74,4 +123,19 @@ header ul {
 #assignments-table input,
 #assignments-table button {
     width: auto;
+}
+
+.action-box {
+    background-color: #b1c3de;
+    border-color: #204a87;
+    border-style: solid;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.action-box div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
 }
