@@ -26,7 +26,15 @@
 
 <!-- Login Prompts -->
 <form id="login-form">
-    <label>Username: <input autofocus></label>
-    <label>Password: <input></label>
-    <button>Log in</button>
+    <div class="login-row">
+        <label for="username">Username:</label>
+        <input id="username" autofocus>
+    </div>
+    <div class="login-row">
+        <label for="password">Password:</label>
+        <input id="password" type="password">
+    </div> 
+    <div class="login-row">
+        <button>Log in</button>
+    </div>
 </form>
