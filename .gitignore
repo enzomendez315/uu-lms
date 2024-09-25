@@ -4,3 +4,6 @@ db.sqlite3
 .DS_Store
 autotester
 *~
+a*.txt
+b*.txt
+c*.txt
