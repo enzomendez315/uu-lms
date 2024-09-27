@@ -44,7 +44,14 @@
             </tr>
         </thead>
         <tbody>
+            {% for assignment in assignments %}
             <tr>
+                <td> <a href="/{{assignment.0}}/">{{assignment.1}}</a> </td>
+                <td class="numeric-column">{{assignment.2}}/{{assignment.3}}</td>
+            </tr>
+            {% endfor %}
+
+            <!-- <tr>
                 <td> <a href="/static/assignment.html">Github username</a> </td>
                 <td class="numeric-column">2/3</td>
             </tr>
@@ -71,7 +78,7 @@
             <tr>
                 <td> <a href="/static/assignment.html">Homework 6 (JS)</a> </td>
                 <td class="numeric-column">0/0</td>
-            </tr>
+            </tr> -->
         </tbody>
     </table>
 </div>
