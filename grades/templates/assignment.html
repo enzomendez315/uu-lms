@@ -24,16 +24,16 @@
 <div class="content">
     <!-- Title and Description -->
     <div class="title">
-        <h2>Homework 1 (HTML)</h2>
-        <p>Due September 08, total of 100 points.</p>
+        <h2>{{assignment.title}}</h2>
+        <p>Due {{assignment.deadline|date:"F d"}}, total of {{assignment.points}} point{{assignment.points|pluralize}}.</p>
     </div>
 
     <!-- Action Box -->
     <div class="action-box">
-        <p>Currently 2/3 submissions</p>
+        <p>Currently {{submissions}}/{{students}} submission{{students|pluralize}}</p>
         <div>
-            <p>1 submission assigned to you</p>
-            <a href="/static/submissions.html" role="button">Grade</a>
+            <p>{{for_grading}} submission{{for_grading|pluralize}} assigned to you</p>
+            <a href="/{{assignment.id}}/submissions.html" role="button">Grade</a>
         </div>
     </div>
 
@@ -41,21 +41,6 @@
     <main>
         <h3>Description</h3>
 
-        <p>In this assignment, you will set up a web server serving HTML web pages for the grading application:</p>
-
-        <nav>
-            <ul>
-                <li>Configure and start a <em>basic web server</em> using Django</li>
-                <li>Create <em>basic web pages</em> using HTML for data/content</li>
-            </ul>
-        </nav>
-
-        <p>For example, here is a page <strong>you will make,</strong> in a file called <code>assignments.html</code>:</p>
-
-        <img src="/static/assignment.png" 
-        alt="You will create a heading for 'Homework 1 (HTML)' and write the deadline and the total score for the assignment 
-            below the heading. Create an action box describing the number of submissions and the number that are assigned for you 
-            to grade. Also include a 'Grade' button using the 'a' tag. Below that, use a subheading for the 'Description' and proceed 
-            to give a detailed overview of what is expected for grading.">
+        {{assignment.description|safe}}
     </main>
 </div>

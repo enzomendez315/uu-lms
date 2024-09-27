@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 from grades import views
 
+# We decide which function to run based on the URL
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", views.index),
