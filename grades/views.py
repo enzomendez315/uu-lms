@@ -36,7 +36,37 @@ def assignment(request, assignment_id):
     return render(request, "assignment.html", additional_info)
 
 def submissions(request, assignment_id):
-    return render(request, "submissions.html")
+    try:
+        # Get assignment by ID
+        assignment = models.Assignment.objects.get(id=assignment_id)
+
+        # Get the user object for the grader
+        grader = models.User.objects.get(username="g")
+
+        # Get submissions assigned to the grader and sort them by author's username
+        for_grading = assignment.submission_set.filter(grader=grader).select_related('author').order_by('author__username')
+
+        submissions = []
+
+        for submission in for_grading:
+            # Get author's name
+            author = submission.author.get_full_name()
+
+            # Get file url
+            file = submission.file
+
+            # Get score
+            score = submission.score
+
+            submissions.append([author, file, score])
+
+        additional_info = {
+            'assignment': assignment,
+            'submissions': submissions
+        }
+    except models.Assignment.DoesNotExist:
+        raise Http404("Page does not exist.")
+    return render(request, "submissions.html", additional_info)
 
 def profile(request):
     # Get all assignments
