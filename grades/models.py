@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 
-# TODO: Add blanks, nulls, and defaults
-# TODO: Revise on_deletes
 class Assignment(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
