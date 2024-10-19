@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from . import models
 from django.http import Http404
@@ -36,6 +36,8 @@ def assignment(request, assignment_id):
     return render(request, "assignment.html", additional_info)
 
 def submissions(request, assignment_id):
+    if request.method == "POST":
+        return redirect(f"/{assignment_id}/submissions")
     try:
         # Get assignment by ID
         assignment = models.Assignment.objects.get(id=assignment_id)
