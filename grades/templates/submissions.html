@@ -26,7 +26,7 @@
                 <tr>
                     <td> <label for="{{submission.0}}">{{submission.0}}</label> </td>
                     <td> <a href="{{submission.1}}" title="Go to {{submission.0}}'s submission">Submission</a> </td>
-                    <td> <input type="number" id="{{submission.0}}" value="{{submission.2|default:''}}"> </td>
+                    <td> <input type="number" id="{{submission.0}}" value="{{submission.2|default:''}}" name="grade-{{submission.id}}"> </td>
                 </tr>
                 {% endfor %}
             </tbody>
