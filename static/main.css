@@ -176,7 +176,7 @@ header a:hover {
     align-items: center;
 }
 
-#submit-button {
+.submit-button {
     margin: 1rem;
 }
 

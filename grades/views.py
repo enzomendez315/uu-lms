@@ -18,11 +18,16 @@ def assignment(request, assignment_id):
         for_grading_count = assignment.submission_set.filter(grader=grader).count()
         students_count = models.Group.objects.get(name="Students").user_set.count()
 
+        # For Student Action Box
+        student = models.User.objects.get(username="a")
+        submission = models.Submission.objects.get(author=student, assignment_id=assignment_id)
+
         additional_info = {
             "assignment": assignment,
             "submissions": submissions_count,
             "for_grading": for_grading_count,
-            "students": students_count
+            "students": students_count,
+            "submission": submission
         }
     except models.Assignment.DoesNotExist:
         raise Http404("Page does not exist.")
@@ -55,10 +60,10 @@ def submissions(request, assignment_id):
             # Score must be a number between 0 and the maximum number of points
             try:
                 value = request.POST[f"grade-{submission_id}"]
-                score = float(value) if value else None
+                score = float(value) if value != "" else None
                 max_points = assignment.points
-                if score and (score < 0 or score > max_points):
-                    errors[submission_id].append(f"Score {score} is outside of the valid range 0-{max_points}.")
+                if score is not None and (score < 0 or score > max_points):
+                    errors[submission_id].append(f"Score {score} is not in valid range 0-{max_points}.")
                     score = None
                 submission.score = score
                 submissions_list.append(submission)
@@ -68,14 +73,14 @@ def submissions(request, assignment_id):
             submissions.append({
                 "author": submission.author.get_full_name(),
                 "file": submission.file.url if submission.file else None,
-                "score": score,
+                "score": submission.score,
                 "id": submission.id,
                 "errors": errors[submission_id]
             })
 
         models.Submission.objects.bulk_update(submissions_list, ["score"])
         
-        if not errors:
+        if all(not error for error in errors.values()) and not invalid_submission_ids:
             return redirect(f"/{assignment_id}/submissions")
     else:
         grader = models.User.objects.get(username="g")

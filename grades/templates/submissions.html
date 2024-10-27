@@ -29,7 +29,7 @@
                 <tr>
                     <td> <label for="{{submission.author}}">{{submission.author}}</label> </td>
                     <td> <a href="{{submission.file}}" title="Go to {{submission.author}}'s submission">Submission</a> </td>
-                    <td> <input type="number" min="0" max="{{assignment.points}}" id="{{submission.author}}" value="{{submission.score|default:''}}" name="grade-{{submission.id}}"> </td>
+                    <td> <input type="number" step="any" min="0" max="{{assignment.points}}" id="{{submission.author}}" value="{{submission.score|default:''}}" name="grade-{{submission.id}}"> </td>
                     <td> 
                         {% for error in submission.errors %}
                         <output>{{error}}</output>
@@ -39,7 +39,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div id="submit-button">
+        <div class="submit-button">
             <button>Submit</button>
             <a href="/{{assignment.id}}/">Back to assignment</a>
         </div>

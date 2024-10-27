@@ -10,7 +10,23 @@
         <p>Due {{assignment.deadline|date:"F d"}}, total of {{assignment.points}} point{{assignment.points|pluralize}}.</p>
     </div>
 
-    <!-- Action Box -->
+    <!-- Student Action Box -->
+    <div class="action-box">
+        {% if submission and submission.file %}
+            <p>Current submission: {{submission.file.name}}.pdf</p>
+        {% else %}
+            <p>No current submission</p>
+        {% endif %}
+        <form action="/{{assignment.id}}/" method="post">
+            {% csrf_token %}
+            <input type="file" id="{{submission.author}}" name="grade-{{submission.id}}">
+            <div class="submit-button">
+                <button>Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- TA Action Box -->
     <div class="action-box">
         <p>Currently {{submissions}}/{{students}} submission{{students|pluralize}}</p>
         <div>
