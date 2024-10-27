@@ -13,6 +13,9 @@
     <!-- Assignments Table -->
     <form id="assignments-table" action="/{{assignment.id}}/submissions" method="post">
         {% csrf_token %}
+        {% for invalid_id in invalid_submission_ids %}
+        <output id="invalid_submission_ids">{{invalid_id}}</output>
+        {% endfor %}
         <table>
             <thead>      
                 <tr>
@@ -24,9 +27,14 @@
             <tbody>
                 {% for submission in submissions %}
                 <tr>
-                    <td> <label for="{{submission.0}}">{{submission.0}}</label> </td>
-                    <td> <a href="{{submission.1}}" title="Go to {{submission.0}}'s submission">Submission</a> </td>
-                    <td> <input type="number" id="{{submission.0}}" value="{{submission.2|default:''}}" name="grade-{{submission.id}}"> </td>
+                    <td> <label for="{{submission.author}}">{{submission.author}}</label> </td>
+                    <td> <a href="{{submission.file}}" title="Go to {{submission.author}}'s submission">Submission</a> </td>
+                    <td> <input type="number" min="0" max="{{assignment.points}}" id="{{submission.author}}" value="{{submission.score|default:''}}" name="grade-{{submission.id}}"> </td>
+                    <td> 
+                        {% for error in submission.errors %}
+                        <output>{{error}}</output>
+                        {% endfor %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

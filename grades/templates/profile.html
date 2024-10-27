@@ -28,8 +28,8 @@
         <tbody>
             {% for assignment in assignments %}
             <tr>
-                <td> <a href="/{{assignment.0}}/">{{assignment.1}}</a> </td>
-                <td class="numeric-column">{{assignment.2}}/{{assignment.3}}</td>
+                <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
+                <td class="numeric-column">{{assignment.graded_count}}/{{assignment.for_grading_count}}</td>
             </tr>
             {% endfor %}
         </tbody>

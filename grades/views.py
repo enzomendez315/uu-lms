@@ -29,88 +29,71 @@ def assignment(request, assignment_id):
     return render(request, "assignment.html", additional_info)
 
 def submissions(request, assignment_id):
+    try:
+        assignment = models.Assignment.objects.get(id=assignment_id)
+    except models.Assignment.DoesNotExist:
+        raise Http404("Page does not exist.")
+    
+    submissions = []
+    errors = defaultdict(list)
+    invalid_submission_ids = []
+    additional_info = {"assignment": assignment}
+    
     if request.method == "POST":
         # Extract the submission ID's
         submission_ids = extract_data(request.POST)
-        submissions = []
-        errors = defaultdict(list)
-
-        try:
-            assignment = models.Assignment.objects.get(id=assignment_id)
-        except models.Assignment.DoesNotExist:
-            raise Http404("Page does not exist.")
-
-        # submissions = models.Submission.objects.filter(id__in=submission_ids, assignment_id=assignment_id)
-        # for submission in submissions:
-        #     id = str(submission.id)
-        #     value = request.POST[id]
-        #     score = float(value) if value else None
-        #     submission.score = score
+        submissions_list = []
 
         for submission_id in submission_ids:
             # Submission object must exist for these submission and assignment IDs
             try:
                 submission = models.Submission.objects.get(id=submission_id, assignment_id=assignment_id)
             except models.Submission.DoesNotExist:
-                errors[submission_id].append(f"Submission with ID {submission_id} does not exist.")
-
-            # Submission ID must be valid
-            try:
-                value = request.POST[str(submission_id)]
-            except KeyError:
-                errors[submission_id].append(f"Submission ID {submission_id} is invalid.")
+                invalid_submission_ids.append(f"Submission ID 'grade-{submission_id}' does not exist.")
+                continue
 
             # Score must be a number between 0 and the maximum number of points
             try:
+                value = request.POST[f"grade-{submission_id}"]
                 score = float(value) if value else None
                 max_points = assignment.points
-                if score and score < 0 or score > max_points:
-                    score = None
+                if score and (score < 0 or score > max_points):
                     errors[submission_id].append(f"Score {score} is outside of the valid range 0-{max_points}.")
+                    score = None
                 submission.score = score
-            except ValueError:
-                errors[submission_id].append(f"Score {score} must be a number.")
+                submissions_list.append(submission)
+            except (KeyError, ValueError):
+                errors[submission_id].append(f"Score value must be a valid number.")
 
-            author = submission.author.get_full_name()
-            file = submission.file
-            score = submission.score
-            submissions.append([author, file, score])
+            submissions.append({
+                "author": submission.author.get_full_name(),
+                "file": submission.file.url if submission.file else None,
+                "score": score,
+                "id": submission.id,
+                "errors": errors[submission_id]
+            })
 
-        models.Submission.objects.bulk_update(submissions, ["score"])
-
-        additional_info = {
-            "assignment": assignment,
-            "submissions": submissions,
-            "errors": errors
-        }
+        models.Submission.objects.bulk_update(submissions_list, ["score"])
         
         if not errors:
             return redirect(f"/{assignment_id}/submissions")
     else:
-        try:
-            assignment = models.Assignment.objects.get(id=assignment_id)
-            grader = models.User.objects.get(username="g")
+        grader = models.User.objects.get(username="g")
 
-            # Get submissions assigned to the grader and sort them by author's username
-            for_grading = assignment.submission_set.filter(grader=grader).select_related("author").order_by("author__username")
+        # Get submissions assigned to the grader and sort them by author's username
+        for_grading = assignment.submission_set.filter(grader=grader).select_related("author").order_by("author__username")
 
-            submissions = []
-            errors = {}
+        for submission in for_grading:
+            submissions.append({
+                "author": submission.author.get_full_name(),
+                "file": submission.file.url if submission.file else None,
+                "score": submission.score,
+                "id": submission.id,
+                "errors": []
+            })
 
-            for submission in for_grading:
-                # Get author's name, file url, and score
-                author = submission.author.get_full_name()
-                file = submission.file
-                score = submission.score
-                submissions.append([author, file, score])
-
-            additional_info = {
-                "assignment": assignment,
-                "submissions": submissions,
-                "errors": errors
-            }
-        except models.Assignment.DoesNotExist:
-            raise Http404("Page does not exist.")
+    additional_info["submissions"] = submissions
+    additional_info["invalid_submission_ids"] = invalid_submission_ids
     return render(request, "submissions.html", additional_info)
 
 def profile(request):
@@ -120,9 +103,12 @@ def profile(request):
 
     for assignment in all_assignments:
         # Get number of submissions that have been graded and number of submissions assigned to the grader
-        graded_count = assignment.submission_set.filter(grader=grader, score__isnull=False).count()
-        for_grading_count = assignment.submission_set.filter(grader=grader).count()
-        assignments.append([assignment.id, assignment.title, graded_count, for_grading_count])
+        assignments.append({
+            "id": assignment.id,
+            "title": assignment.title,
+            "graded_count": assignment.submission_set.filter(grader=grader, score__isnull=False).count(),
+            "for_grading_count": assignment.submission_set.filter(grader=grader).count()
+        })
     return render(request, "profile.html", {"assignments": assignments})
 
 def login_form(request):
@@ -133,7 +119,10 @@ def extract_data(request_data):
     # Iterate through request.POST
     for key in request_data.keys():
         if key.startswith("grade-") and key.removeprefix("grade-"):
-            # Convert ID to an integer
-            id = int(key.removeprefix("grade-"))
-            submissions.append(id)
+            try:
+                # Convert ID to an integer
+                id = int(key.removeprefix("grade-"))
+                submissions.append(id)
+            except ValueError:
+                continue
     return submissions

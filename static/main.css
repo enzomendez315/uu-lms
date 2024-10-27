@@ -185,3 +185,18 @@ header a:hover {
     flex-direction: column;
     max-width: 50rem;
 }
+
+/* Homework 4 changes here */
+output {
+    font-weight: bold;
+    color: red;
+}
+
+input:invalid {
+    border: 2px solid red;
+}
+
+#invalid_submission_ids {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
