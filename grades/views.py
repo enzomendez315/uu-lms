@@ -9,28 +9,61 @@ def index(request):
     return render(request, "index.html", {"assignments": assignments})
 
 def assignment(request, assignment_id):
+    errors = defaultdict(list)
+    
     try:
         assignment = models.Assignment.objects.get(id=assignment_id)
-        submissions_count = assignment.submission_set.count()
-        grader = models.User.objects.get(username="g")
-
-        # Get number of submissions assigned to the grader and total number of students
-        for_grading_count = assignment.submission_set.filter(grader=grader).count()
-        students_count = models.Group.objects.get(name="Students").user_set.count()
-
+    except models.Assignment.DoesNotExist:
+        errors["assignment"].append("Assignment ID is not valid.")
+        raise Http404("Page does not exist.")
+    
+    try:
         # For Student Action Box
         student = models.User.objects.get(username="a")
-        submission = models.Submission.objects.get(author=student, assignment_id=assignment_id)
+        # For TA Action Box
+        grader = models.User.objects.get(username="g")
+    except models.User.DoesNotExist:
+        errors["user"].append("User does not exist.")
 
-        additional_info = {
-            "assignment": assignment,
-            "submissions": submissions_count,
-            "for_grading": for_grading_count,
-            "students": students_count,
-            "submission": submission
-        }
-    except models.Assignment.DoesNotExist:
-        raise Http404("Page does not exist.")
+    # For Student Action Box
+    submission = models.Submission.objects.filter(author=student, assignment_id=assignment_id).first()
+
+    # Get the number of submissions, submissions assigned to the grader, and the number of students
+    submissions_count = assignment.submission_set.count()
+    for_grading_count = assignment.submission_set.filter(grader=grader).count()
+    students_count = models.Group.objects.get(name="Students").user_set.count()
+    
+    additional_info = {
+        "assignment": assignment,
+        "submission": submission,
+        "submissions": submissions_count,
+        "for_grading": for_grading_count,
+        "students": students_count,
+        "errors": errors
+    }
+
+    if request.method == "POST":
+        # Get the submitted file object
+        submitted_file = request.FILES.get(f"submission-file-{student.username}")
+
+        if submitted_file:
+            # Update the file of the existing submission
+            if submission:
+                submission.file = submitted_file
+            # Create a new submission
+            else:
+                submission = models.Submission(
+                    assignment=assignment,
+                    author=student,
+                    grader=grader,
+                    file=submitted_file,
+                    score=None
+                )
+                
+            submission.save()
+
+        return redirect(f"/{assignment_id}/")
+    
     return render(request, "assignment.html", additional_info)
 
 def submissions(request, assignment_id):
@@ -68,7 +101,7 @@ def submissions(request, assignment_id):
                 submission.score = score
                 submissions_list.append(submission)
             except (KeyError, ValueError):
-                errors[submission_id].append(f"Score value must be a valid number.")
+                errors[submission_id].append("Score value must be a valid number.")
 
             submissions.append({
                 "author": submission.author.get_full_name(),

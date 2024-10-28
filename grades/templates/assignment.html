@@ -12,16 +12,21 @@
 
     <!-- Student Action Box -->
     <div class="action-box">
+        {% for error in errors %}
+            <output>{{error}}</output>
+        {% endfor %}
         {% if submission and submission.file %}
             <p>Current submission: {{submission.file.name}}.pdf</p>
         {% else %}
             <p>No current submission</p>
         {% endif %}
-        <form action="/{{assignment.id}}/" method="post">
+        <form action="/{{assignment.id}}/" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <input type="file" id="{{submission.author}}" name="grade-{{submission.id}}">
-            <div class="submit-button">
-                <button>Submit</button>
+            <div>
+                <input type="file" name="submission-file-{{submission.author}}">
+                <div class="submit-button">
+                    <button>Submit</button>
+                </div>
             </div>
         </form>
     </div>
