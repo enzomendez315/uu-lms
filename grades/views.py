@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from . import models
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from collections import defaultdict
 
 def index(request):
@@ -44,23 +44,21 @@ def assignment(request, assignment_id):
 
     if request.method == "POST":
         # Get the submitted file object
-        submitted_file = request.FILES.get(f"submission-file-{student.username}")
+        submitted_file = request.FILES.get(f"submission-file")
 
-        if submitted_file:
-            # Update the file of the existing submission
-            if submission:
-                submission.file = submitted_file
-            # Create a new submission
-            else:
-                submission = models.Submission(
-                    assignment=assignment,
-                    author=student,
-                    grader=grader,
-                    file=submitted_file,
-                    score=None
-                )
-                
-            submission.save()
+        # Update the file of the existing submission
+        if submission:
+            submission.file = submitted_file
+        # Create a new submission
+        else:
+            submission = models.Submission(
+                assignment=assignment,
+                author=student,
+                grader=grader,
+                file=submitted_file,
+                score=None
+            )
+        submission.save()
 
         return redirect(f"/{assignment_id}/")
     
@@ -151,6 +149,13 @@ def profile(request):
 
 def login_form(request):
     return render(request, "login.html")
+
+def show_upload(request, filename):
+    try:
+        submission = models.Submission.objects.get(file=filename)
+    except models.Submission.DoesNotExist:
+        raise Http404("Submission does not exist.")
+    return HttpResponse(submission.file.open())
 
 def extract_data(request_data):
     submissions = []

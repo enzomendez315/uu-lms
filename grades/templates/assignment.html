@@ -15,15 +15,15 @@
         {% for error in errors %}
             <output>{{error}}</output>
         {% endfor %}
-        {% if submission and submission.file %}
-            <p>Current submission: {{submission.file.name}}.pdf</p>
+        {% if submission.file %}
+            <p>Current submission: <a href="{{submission.file.url}}" title="Go to {{submission.author}}'s submission">{{submission.file.name}}.pdf</a> </p>
         {% else %}
             <p>No current submission</p>
         {% endif %}
         <form action="/{{assignment.id}}/" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div>
-                <input type="file" name="submission-file-{{submission.author}}">
+                <input type="file" name="submission-file"> <!-- -{{submission.author}} -->
                 <div class="submit-button">
                     <button>Submit</button>
                 </div>
