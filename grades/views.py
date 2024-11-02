@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
+from django.contrib.auth import authenticate, login, logout
 from . import models
 from django.http import Http404, HttpResponse
 from collections import defaultdict
@@ -145,10 +146,32 @@ def profile(request):
             "graded_count": assignment.submission_set.filter(grader=grader, score__isnull=False).count(),
             "for_grading_count": assignment.submission_set.filter(grader=grader).count()
         })
-    return render(request, "profile.html", {"assignments": assignments})
+
+    additional_info = {
+        "assignments": assignments,
+        "user": request.user
+    }
+    return render(request, "profile.html", additional_info)
 
 def login_form(request):
+    if request.method == "POST":
+        # Extract username and password
+        username = request.POST.get("username", "")
+        password = request.POST.get("password", "")
+        user = authenticate(username=username, password=password)
+
+        if user is not None:
+            # Authentication succeeded
+            login(request, user)
+            return redirect("/profile/")
+        else:
+            # Credentials could not be authenticated
+            return render(request, "login.html")
     return render(request, "login.html")
+
+def logout_form(request):
+    logout(request)
+    return redirect("/profile/login/")
 
 def show_upload(request, filename):
     try:

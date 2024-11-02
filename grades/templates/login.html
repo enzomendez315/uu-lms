@@ -10,14 +10,15 @@
     </div>
 
     <!-- Login Prompts -->
-    <form id="login-form">
+    <form id="login-form" action="/profile/login/" method="post">
+        {% csrf_token %}
         <div class="login-row">
             <label for="username">Username:</label>
-            <input id="username" autofocus>
+            <input id="username" name="username" autofocus>
         </div>
         <div class="login-row">
             <label for="password">Password:</label>
-            <input id="password" type="password">
+            <input id="password" name="password" type="password">
         </div> 
         <div class="login-row">
             <button>Log in</button>

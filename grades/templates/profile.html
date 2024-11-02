@@ -12,8 +12,12 @@
     <!-- Action Box -->
     <div class="action-box">
         <div>
-            <p>Currently logged in as ta1.</p>
-            <a href="#" role="button">Log out</a>
+            {% if user.get_full_name %}
+                <p>Currently logged in as {{user.get_full_name}}.</p>
+            {% else %}
+                <p>Currently logged in as AnonymousUser.</p>
+            {% endif %}
+            <a href="/profile/logout/" role="button">Log out</a>
         </div>
     </div>
 
