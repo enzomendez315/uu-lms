@@ -12,7 +12,7 @@
     <!-- Action Box -->
     <div class="action-box">
         <div>
-            {% if user.get_full_name %}
+            {% if user.is_authenticated %}
                 <p>Currently logged in as {{user.get_full_name}}.</p>
             {% else %}
                 <p>Currently logged in as AnonymousUser.</p>

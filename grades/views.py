@@ -33,6 +33,8 @@ def assignment(request, assignment_id):
     submissions_count = assignment.submission_set.count()
     for_grading_count = assignment.submission_set.filter(grader=grader).count()
     students_count = models.Group.objects.get(name="Students").user_set.count()
+
+    user = request.user
     
     additional_info = {
         "assignment": assignment,
@@ -40,6 +42,9 @@ def assignment(request, assignment_id):
         "submissions": submissions_count,
         "for_grading": for_grading_count,
         "students": students_count,
+        "user": user,
+        "is_student": is_student(user),
+        "is_ta": is_ta(user),
         "errors": errors
     }
 
@@ -74,7 +79,8 @@ def submissions(request, assignment_id):
     submissions = []
     errors = defaultdict(list)
     invalid_submission_ids = []
-    additional_info = {"assignment": assignment}
+    user = request.user
+    additional_info = {"assignment": assignment,}
     
     if request.method == "POST":
         # Extract the submission ID's
@@ -115,10 +121,15 @@ def submissions(request, assignment_id):
         if all(not error for error in errors.values()) and not invalid_submission_ids:
             return redirect(f"/{assignment_id}/submissions")
     else:
-        grader = models.User.objects.get(username="g")
-
-        # Get submissions assigned to the grader and sort them by author's username
-        for_grading = assignment.submission_set.filter(grader=grader).select_related("author").order_by("author__username")
+        if user.is_superuser:
+            # Get all submissions
+            for_grading = assignment.submission_set.select_related("author").all()
+        elif is_ta(user):
+            # Get submissions assigned to this TA
+            for_grading = assignment.submission_set.filter(grader=user).select_related("author").order_by("author__username")
+        else:
+            # Empty list for students
+            for_grading = []
 
         for submission in for_grading:
             submissions.append({
@@ -192,3 +203,9 @@ def extract_data(request_data):
             except ValueError:
                 continue
     return submissions
+
+def is_student(user):
+    return user.groups.filter(name="Students").exists()
+
+def is_ta(user):
+    return user.groups.filter(name="Teaching Assistants").exists()

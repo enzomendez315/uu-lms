@@ -10,6 +10,7 @@
         <p>Due {{assignment.deadline|date:"F d"}}, total of {{assignment.points}} point{{assignment.points|pluralize}}.</p>
     </div>
 
+    {% if is_student or not user.is_authenticated %}
     <!-- Student Action Box -->
     <div class="action-box">
         {% for error in errors %}
@@ -30,15 +31,23 @@
             </div>
         </form>
     </div>
-
+    {% else %}
     <!-- TA Action Box -->
     <div class="action-box">
+        {% if is_ta %}
         <p>Currently {{submissions}}/{{students}} submission{{students|pluralize}}</p>
         <div>
             <p>{{for_grading}} submission{{for_grading|pluralize}} assigned to you</p>
             <a href="/{{assignment.id}}/submissions" role="button">Grade</a>
         </div>
+        {% else %}
+        <div>
+            <p>Currently {{submissions}}/{{students}} submission{{students|pluralize}}</p>
+            <a href="/{{assignment.id}}/submissions" role="button">Grade</a>
+        </div>
+        {% endif %}
     </div>
+    {% endif %}
 
     <!-- Paragraphs and Image -->
     <main>
