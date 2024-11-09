@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
-from . import models
 from django.http import Http404, HttpResponse
+from django.utils import timezone
+from . import models
 from collections import defaultdict
 
 def index(request):
@@ -145,22 +146,69 @@ def submissions(request, assignment_id):
     return render(request, "submissions.html", additional_info)
 
 def profile(request):
+    user = request.user
     all_assignments = models.Assignment.objects.all()
-    grader = models.User.objects.get(username="g")
     assignments = []
+    current_grade = 0
 
-    for assignment in all_assignments:
-        # Get number of submissions that have been graded and number of submissions assigned to the grader
-        assignments.append({
-            "id": assignment.id,
-            "title": assignment.title,
-            "graded_count": assignment.submission_set.filter(grader=grader, score__isnull=False).count(),
-            "for_grading_count": assignment.submission_set.filter(grader=grader).count()
-        })
+    if user.is_superuser:
+        for assignment in all_assignments:
+            # Get the number of total graded submissions as well as the number of submissions overall
+            assignments.append({
+                "id": assignment.id,
+                "title": assignment.title,
+                "total_graded_count": assignment.submission_set.filter(score__isnull=False).count(),
+                "total_submissions_count": assignment.submission_set.count()
+            })
+    elif is_ta(user):
+        for assignment in all_assignments:
+            # Get the number of submissions that have been graded and the number of submissions assigned to this TA
+            assignments.append({
+                "id": assignment.id,
+                "title": assignment.title,
+                "graded_count": assignment.submission_set.filter(grader=user, score__isnull=False).count(),
+                "for_grading_count": assignment.submission_set.filter(grader=user).count()
+            })
+    else:
+        earned_points = 0
+        available_points = 0
+        for assignment in all_assignments:
+            """
+            1. Submitted and graded - Show score (score on submission divided by maximum points in assignment)
+            2. Submitted but not yet graded - Mark as 'Ungraded'
+            3. Not submitted because the assignment isn't due yet - Mark as 'Not Due'
+            4. Missing because the assignment is past due - Mark as 'Missing'
+            """
+            submission = assignment.submission_set.filter(author=user).first()
+            if submission:
+                if submission.score is not None:
+                    grade_percentage = (submission.score / assignment.points) * 100
+                    status = f"{grade_percentage}%"
+                    earned_points += grade_percentage * assignment.weight
+                    available_points += assignment.weight
+                else:
+                    status = "Ungraded"
+            else:
+                if assignment.deadline < timezone.now():
+                    status = "Missing"
+                    available_points += assignment.weight
+                else:
+                    status = "Not Due"
+
+            # Get the number of submissions that have been graded and number of submissions assigned to the grader
+            assignments.append({
+                "id": assignment.id,
+                "title": assignment.title,
+                "status": status
+            })
+
+        current_grade = "100%" if available_points == 0 else f"{(earned_points / available_points) * 100}%"
 
     additional_info = {
         "assignments": assignments,
-        "user": request.user
+        "user": user,
+        "is_ta": is_ta(user),
+        "current_grade": current_grade
     }
     return render(request, "profile.html", additional_info)
 

@@ -23,6 +23,22 @@
 
     <!-- Graded Table -->
     <table id="profile-table">
+        {% if user.is_superuser %}
+        <thead>
+            <tr>
+                <th>Assignment</th>
+                <th class="numeric-column">Graded</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+            <tr>
+                <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
+                <td class="numeric-column">{{assignment.total_graded_count}}/{{assignment.total_submissions_count}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        {% elif is_ta %}
         <thead>
             <tr>
                 <th>Assignment</th>
@@ -37,5 +53,27 @@
             </tr>
             {% endfor %}
         </tbody>
+        {% else %}
+        <thead>
+            <tr>
+                <th>Assignment</th>
+                <th class="numeric-column">Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for assignment in assignments %}
+            <tr>
+                <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
+                <td class="numeric-column">{{assignment.status}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Current Grade</td>
+                <td class="numeric-column">{{current_grade}}</td>
+            </tr>
+        </tfoot>
+        {% endif %}
     </table>
 </div>

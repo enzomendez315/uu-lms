@@ -43,6 +43,10 @@ th {
     text-align: left;
 }
 
+tfoot {
+    font-weight: bold;
+}
+
 .numeric-column {
     text-align: right;
 }
