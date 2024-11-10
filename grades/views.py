@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.db.models import Count, Q
 from django.utils import timezone
 from . import models
 from collections import defaultdict
@@ -12,6 +13,7 @@ def index(request):
 
 def assignment(request, assignment_id):
     errors = defaultdict(list)
+    user = request.user
     
     try:
         assignment = models.Assignment.objects.get(id=assignment_id)
@@ -21,26 +23,25 @@ def assignment(request, assignment_id):
     
     try:
         # For Student Action Box
-        student = models.User.objects.get(username="a")
+        student = user
+        submission = models.Submission.objects.filter(author=student, assignment_id=assignment_id).first()
         # For TA Action Box
-        grader = models.User.objects.get(username="g")
+        grader = pick_grader(assignment) if submission is None else submission.grader
     except models.User.DoesNotExist:
         errors["user"].append("User does not exist.")
-
-    # For Student Action Box
-    submission = models.Submission.objects.filter(author=student, assignment_id=assignment_id).first()
 
     # Get the number of submissions, submissions assigned to the grader, and the number of students
     submissions_count = assignment.submission_set.count()
     for_grading_count = assignment.submission_set.filter(grader=grader).count()
     students_count = models.Group.objects.get(name="Students").user_set.count()
-
-    user = request.user
+    grade_percentage = f"{(submission.score / assignment.points) * 100}" if submission and submission.score is not None else ""
     
     additional_info = {
         "assignment": assignment,
         "submission": submission,
+        "past_due": assignment.deadline < timezone.now(),
         "submissions": submissions_count,
+        "grade_percentage": grade_percentage,
         "for_grading": for_grading_count,
         "students": students_count,
         "user": user,
@@ -50,8 +51,11 @@ def assignment(request, assignment_id):
     }
 
     if request.method == "POST":
+        if assignment.deadline < timezone.now():
+            return HttpResponseBadRequest("Assignment is past due.")
+
         # Get the submitted file object
-        submitted_file = request.FILES.get(f"submission-file")
+        submitted_file = request.FILES.get("submission-file")
 
         # Update the file of the existing submission
         if submission:
@@ -182,8 +186,8 @@ def profile(request):
             submission = assignment.submission_set.filter(author=user).first()
             if submission:
                 if submission.score is not None:
-                    grade_percentage = (submission.score / assignment.points) * 100
-                    status = f"{grade_percentage}%"
+                    grade_percentage = submission.score / assignment.points
+                    status = f"{grade_percentage * 100}%"
                     earned_points += grade_percentage * assignment.weight
                     available_points += assignment.weight
                 else:
@@ -202,7 +206,12 @@ def profile(request):
                 "status": status
             })
 
-        current_grade = "100%" if available_points == 0 else f"{(earned_points / available_points) * 100}%"
+            # print(f"{assignment.title}:")
+            # if submission and submission.score is not None: print(f"grade_percentage: {grade_percentage}    weight: {assignment.weight}")
+            # print(f"status: {status}    earned_points: {earned_points}    available_points: {available_points}")
+            # print("")
+
+        current_grade = "100.0%" if available_points == 0 else f"{round((earned_points / available_points) * 100, 1)}%"
 
     additional_info = {
         "assignments": assignments,
@@ -251,6 +260,11 @@ def extract_data(request_data):
             except ValueError:
                 continue
     return submissions
+
+def pick_grader(assignment):
+    assistants = models.Group.objects.get(name="Teaching Assistants")
+    grader = assistants.user_set.annotate(total_assigned=Count("graded_set", filter=Q(graded_set__assignment=assignment))).order_by("total_assigned").first()
+    return grader
 
 def is_student(user):
     return user.groups.filter(name="Students").exists()

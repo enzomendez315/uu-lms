@@ -17,19 +17,39 @@
             <output>{{error}}</output>
         {% endfor %}
         {% if submission.file %}
-            <p>Current submission: <a href="{{submission.file.url}}" title="Go to {{submission.author}}'s submission">{{submission.file.name}}.pdf</a> </p>
-        {% else %}
-            <p>No current submission</p>
-        {% endif %}
-        <form action="/{{assignment.id}}/" method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div>
-                <input type="file" name="submission-file"> <!-- -{{submission.author}} -->
-                <div class="submit-button">
-                    <button>Submit</button>
+            {% if not past_due %}
+            <p>Your current submission is {{submission.file.name}}</p>
+            <!-- <p>Current submission: <a href="{{submission.file.url}}" title="Go to {{submission.author}}'s submission">{{submission.file.name}}.pdf</a> </p> -->
+            <form action="/{{assignment.id}}/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <input type="file" name="submission-file">
+                    <div class="submit-button">
+                        <button>Submit</button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+            {% elif submission.score is not None %}
+            <p>Your submission, {{submission.file.name}}, received {{submission.score|floatformat:0}}/{{assignment.points}} points ({{grade_percentage}}%)</p>
+            {% else %}
+            <p>Your submission, {{submission.file.name}}, is being graded</p>
+            {% endif %}
+        {% else %}
+            {% if not past_due %}
+            <p>No current submission</p>
+            <form action="/{{assignment.id}}/" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div>
+                    <input type="file" name="submission-file">
+                    <div class="submit-button">
+                        <button>Submit</button>
+                    </div>
+                </div>
+            </form>
+            {% else %}
+            <p>You did not submit this assignment and received 0 points</p>
+            {% endif %}
+        {% endif %}
     </div>
     {% else %}
     <!-- TA Action Box -->
