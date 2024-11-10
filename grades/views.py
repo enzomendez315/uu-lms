@@ -1,16 +1,21 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate, login, logout
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.db.models import Count, Q
+from django.core.exceptions import PermissionDenied
 from django.utils import timezone
 from . import models
 from collections import defaultdict
 
+@login_required
 def index(request):
     assignments = models.Assignment.objects.all()
     return render(request, "index.html", {"assignments": assignments})
 
+@login_required
 def assignment(request, assignment_id):
     errors = defaultdict(list)
     user = request.user
@@ -75,6 +80,7 @@ def assignment(request, assignment_id):
     
     return render(request, "assignment.html", additional_info)
 
+@login_required
 def submissions(request, assignment_id):
     try:
         assignment = models.Assignment.objects.get(id=assignment_id)
@@ -86,6 +92,9 @@ def submissions(request, assignment_id):
     invalid_submission_ids = []
     user = request.user
     additional_info = {"assignment": assignment,}
+
+    if not is_ta(user) and not user.is_superuser:
+        raise PermissionDenied("Only admins and TA's can view this page")
     
     if request.method == "POST":
         # Extract the submission ID's
@@ -108,7 +117,8 @@ def submissions(request, assignment_id):
                 if score is not None and (score < 0 or score > max_points):
                     errors[submission_id].append(f"Score {score} is not in valid range 0-{max_points}.")
                     score = None
-                submission.score = score
+                #submission.score = score
+                submission.change_grade(user, score)
                 submissions_list.append(submission)
             except (KeyError, ValueError):
                 errors[submission_id].append("Score value must be a valid number.")
@@ -149,6 +159,7 @@ def submissions(request, assignment_id):
     additional_info["invalid_submission_ids"] = invalid_submission_ids
     return render(request, "submissions.html", additional_info)
 
+@login_required
 def profile(request):
     user = request.user
     all_assignments = models.Assignment.objects.all()
@@ -222,25 +233,33 @@ def profile(request):
     return render(request, "profile.html", additional_info)
 
 def login_form(request):
+    next_url = request.GET.get("next", "/profile/")
+
     if request.method == "POST":
         # Extract username and password
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
+        next_url = request.POST.get("next", "/profile/")
         user = authenticate(username=username, password=password)
 
-        if user is not None:
-            # Authentication succeeded
-            login(request, user)
-            return redirect("/profile/")
+        if url_has_allowed_host_and_scheme(next_url, None):
+            if user is not None:
+                # Authentication succeeded
+                login(request, user)
+                return redirect(next_url)
+            else:
+                # Credentials could not be authenticated
+                error = "Username and password do not match"
+                return render(request, "login.html", {"next": next_url, "error": error})
         else:
-            # Credentials could not be authenticated
-            return render(request, "login.html")
-    return render(request, "login.html")
+            return redirect("/")
+    return render(request, "login.html", {"next": next_url})
 
 def logout_form(request):
     logout(request)
     return redirect("/profile/login/")
 
+@login_required
 def show_upload(request, filename):
     try:
         submission = models.Submission.objects.get(file=filename)

@@ -12,6 +12,9 @@
     <!-- Login Prompts -->
     <form id="login-form" action="/profile/login/" method="post">
         {% csrf_token %}
+        {% if error %}
+        <output id="login-error">{{error}}</output>
+        {% endif %}
         <div class="login-row">
             <label for="username">Username:</label>
             <input id="username" name="username" autofocus>
@@ -20,6 +23,7 @@
             <label for="password">Password:</label>
             <input id="password" name="password" type="password">
         </div> 
+        <input name="next" type="hidden" value="{{next}}">
         <div class="login-row">
             <button>Log in</button>
         </div>

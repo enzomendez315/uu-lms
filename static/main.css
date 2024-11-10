@@ -143,6 +143,11 @@ header a:hover {
     margin-top: 1rem;
 }
 
+#login-error {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
 .login-row {
     display: flex;
     flex-direction: row;
@@ -190,7 +195,6 @@ header a:hover {
     max-width: 50rem;
 }
 
-/* Homework 4 changes here */
 output {
     font-weight: bold;
     color: red;
