@@ -20,3 +20,8 @@ class Submission(models.Model):
         if not user.is_superuser and user != self.grader:
             raise PermissionDenied("Only admins and TA's can change grades")
         self.score = new_score
+
+    def view_submission(self, user):
+        if user != self.author and user != self.grader and not user.is_superuser:
+            raise PermissionDenied("Only admins, the author or the grader of this submission can view this file")
+        return self.file

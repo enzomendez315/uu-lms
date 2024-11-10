@@ -52,7 +52,7 @@ def assignment(request, assignment_id):
         "user": user,
         "is_student": is_student(user),
         "is_ta": is_ta(user),
-        "errors": errors
+        "errors": errors.items()
     }
 
     if request.method == "POST":
@@ -61,6 +61,10 @@ def assignment(request, assignment_id):
 
         # Get the submitted file object
         submitted_file = request.FILES.get("submission-file")
+
+        if submitted_file.size > 64 * 1024 * 1024:
+            errors["size"].append("Size of file shouldn't be greater than 64 MiB")
+            return render(request, "assignment.html", additional_info)
 
         # Update the file of the existing submission
         if submission:
@@ -265,7 +269,7 @@ def show_upload(request, filename):
         submission = models.Submission.objects.get(file=filename)
     except models.Submission.DoesNotExist:
         raise Http404("Submission does not exist.")
-    return HttpResponse(submission.file.open())
+    return HttpResponse(submission.view_submission(request.user).open())
 
 def extract_data(request_data):
     submissions = []

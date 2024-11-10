@@ -13,8 +13,10 @@
     {% if is_student or not user.is_authenticated %}
     <!-- Student Action Box -->
     <div class="action-box">
-        {% for error in errors %}
+        {% for key, error_list in errors %}
+            {% for error in error_list %}
             <output>{{error}}</output>
+            {% endfor %}
         {% endfor %}
         {% if submission.file %}
             {% if not past_due %}
