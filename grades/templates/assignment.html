@@ -25,7 +25,7 @@
             <form action="/{{assignment.id}}/" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div>
-                    <input type="file" name="submission-file">
+                    <input type="file" name="submission-file" accept="application/pdf">
                     <div class="submit-button">
                         <button>Submit</button>
                     </div>

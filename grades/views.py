@@ -62,8 +62,13 @@ def assignment(request, assignment_id):
         # Get the submitted file object
         submitted_file = request.FILES.get("submission-file")
 
+
         if submitted_file.size > 64 * 1024 * 1024:
             errors["size"].append("Size of file shouldn't be greater than 64 MiB")
+            return render(request, "assignment.html", additional_info)
+        
+        if not submitted_file.name.endswith(".pdf") or not next(submitted_file.chunks()).startswith(b'%PDF-'):
+            errors["type"].append("File is not a PDF")
             return render(request, "assignment.html", additional_info)
 
         # Update the file of the existing submission
@@ -267,9 +272,17 @@ def logout_form(request):
 def show_upload(request, filename):
     try:
         submission = models.Submission.objects.get(file=filename)
+
+        if not submission.file.name.endswith(".pdf") or not next(submission.file.chunks()).startswith(b'%PDF-'):
+            raise Http404("File is not a PDF")
+        
+        response = HttpResponse(submission.view_submission(request.user).open())
+        response["Content-Type"] = "application/pdf"
+        response["Content-Disposition"] = f'attachment; filename="{submission.file.name}"'
+        
+        return response
     except models.Submission.DoesNotExist:
         raise Http404("Submission does not exist.")
-    return HttpResponse(submission.view_submission(request.user).open())
 
 def extract_data(request_data):
     submissions = []
