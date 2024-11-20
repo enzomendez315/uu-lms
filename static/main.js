@@ -5,30 +5,50 @@ function say_hi(elt) {
 }
 
 function make_table_sortable($table) {
-    // Select the last header cell of the table
-    const $lastHeader = $table.find("thead th.numeric-column");
-    $lastHeader.on("click", () => {
-        let isAscending = true;
+    // Select the sortable headers of the table
+    const $sortableHeaders = $table.find("thead th.sort-column");
+    $sortableHeaders.on("click", (e) => {
+        const $headerToSort = $(e.target);
+        const columnIndex = $headerToSort.index();
+        let isAscending = false;
+        let unsorted = false;
 
         // Change order depending on status
-        if ($lastHeader.hasClass("sort-desc")) {
-            $lastHeader.removeClass("sort-desc");
-            $lastHeader.addClass("sort-asc");
-        } else if ($lastHeader.hasClass("sort-asc")) {
-            $lastHeader.removeClass("sort-asc");
-            $lastHeader.addClass("sort-desc");
-            isAscending = false;
+        // asc -> desc -> unsorted
+        $sortableHeaders.not($headerToSort).removeClass("sort-asc sort-desc").removeAttr("aria-sort");
+        if ($headerToSort.hasClass("sort-asc")) {
+            // Change to descending order
+            $headerToSort.removeClass("sort-asc");
+            $headerToSort.addClass("sort-desc");
+            $headerToSort.attr("aria-sort", "descending");
+        } else if ($headerToSort.hasClass("sort-desc")) {
+            // Change to unsorted order
+            $headerToSort.removeClass("sort-desc");
+            $headerToSort.removeAttr("aria-sort");
+            unsorted = true;
         } else {
-            $lastHeader.addClass("sort-asc");
+            // Change to ascending order
+            $headerToSort.addClass("sort-asc");
+            $headerToSort.attr("aria-sort", "ascending");
+            isAscending = true;
         }
 
         // Convert from string to number, then sort
         const rows = $table.find("tbody tr").toArray();
         rows.sort((row1, row2) => {
-            const cell1 = parseFloat($(row1).find("td.numeric-column").text()) || 0;
-            const cell2 = parseFloat($(row2).find("td.numeric-column").text()) || 0;
+            let cell1, cell2;
+            let tdElement1 = $(row1).children("td").get(columnIndex);
+            let tdElement2 = $(row2).children("td").get(columnIndex);
+            
+            if (!unsorted) {
+                cell1 = parseFloat($(tdElement1).data("value")) || 0;
+                cell2 = parseFloat($(tdElement2).data("value")) || 0;
+            } else {
+                cell1 = $(row1).data("index");
+                cell2 = $(row2).data("index");
+            }
 
-            if (isAscending) {
+            if (isAscending || unsorted) {
                 return cell1 - cell2;
             } else {
                 return cell2 - cell1;

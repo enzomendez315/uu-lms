@@ -208,3 +208,15 @@ input:invalid {
     margin-left: 1rem;
     margin-right: 1rem;
 }
+
+th.sort-column { 
+    cursor: pointer; 
+}
+
+th.sort-asc::after { 
+    content: " \25b2"; 
+}
+
+th.sort-desc::after { 
+    content: " \25bc"; 
+}

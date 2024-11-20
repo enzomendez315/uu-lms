@@ -10,20 +10,20 @@
     </div>
 
     <!-- Assignments Table -->
-    <table>
+    <table class="sortable">
         <thead>
             <tr>
                 <th>Assignment</th>
-                <th>Due date</th>
-                <th class="numeric-column">Weight</th>
+                <th class="sort-column" role="button">Due date</th>
+                <th class="numeric-column sort-column" role="button">Weight</th>
             </tr>
         </thead>
         <tbody>
             {% for assignment in assignments %}
-            <tr>
+            <tr data-index="{{forloop.counter}}">
                 <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
-                <td>{{assignment.deadline|date:"M d"}}</td>
-                <td class="numeric-column">{{assignment.weight}}</td>
+                <td data-value="{{assignment.deadline|date:'U'}}">{{assignment.deadline|date:"M d"}}</td>
+                <td class="numeric-column" data-value="{{assignment.weight}}">{{assignment.weight}}</td>
             </tr>
             {% endfor %}
         </tbody>

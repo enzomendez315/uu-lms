@@ -27,14 +27,14 @@
         <thead>
             <tr>
                 <th>Assignment</th>
-                <th class="numeric-column">Graded</th>
+                <th class="numeric-column sort-column" role="button">Graded</th>
             </tr>
         </thead>
         <tbody>
             {% for assignment in assignments %}
-            <tr>
+            <tr data-index="{{forloop.counter}}">
                 <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
-                <td class="numeric-column">{{assignment.total_graded_count}}/{{assignment.total_submissions_count}}</td>
+                <td class="numeric-column" data-value="{{assignment.total_graded_count}}/{{assignment.total_submissions_count}}">{{assignment.total_graded_count}}/{{assignment.total_submissions_count}}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -42,14 +42,14 @@
         <thead>
             <tr>
                 <th>Assignment</th>
-                <th class="numeric-column">Graded</th>
+                <th class="numeric-column sort-column" role="button">Graded</th>
             </tr>
         </thead>
         <tbody>
             {% for assignment in assignments %}
-            <tr>
+            <tr data-index="{{forloop.counter}}">
                 <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
-                <td class="numeric-column">{{assignment.graded_count}}/{{assignment.for_grading_count}}</td>
+                <td class="numeric-column" data-value="{{assignment.graded_count}}/{{assignment.for_grading_count}}">{{assignment.graded_count}}/{{assignment.for_grading_count}}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -57,14 +57,14 @@
         <thead>
             <tr>
                 <th>Assignment</th>
-                <th class="numeric-column">Score</th>
+                <th class="numeric-column sort-column" role="button">Score</th>
             </tr>
         </thead>
         <tbody>
             {% for assignment in assignments %}
-            <tr>
+            <tr data-index="{{forloop.counter}}">
                 <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
-                <td class="numeric-column">{{assignment.status}}</td>
+                <td class="numeric-column" data-value="{{assignment.status}}">{{assignment.status}}</td>
             </tr>
             {% endfor %}
         </tbody>
