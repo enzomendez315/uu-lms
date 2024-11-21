@@ -59,8 +59,38 @@ function make_table_sortable($table) {
         for (const row of rows) {
             $(row).appendTo("tbody");
         }
-    })
+    });
+}
+
+function make_form_async($form) {
+    $form.on("submit", (e) => {
+        e.preventDefault();
+
+        const formData = new FormData($form[0]);
+        $.ajax({
+            url: $form.attr("action"),
+            data: formData,
+            type: "POST",
+            processData: false,
+            contentType: false,
+            mimeType: $form.attr("enctype"),
+            success: () => {
+                $form.replaceWith("<p>Upload succeeded</p>");
+            },
+            error: (error) => {
+                console.log("Could not upload document: ", error);
+                // Re-enable file input and submit button
+                $form.find("input").removeAttr("disabled");
+                $form.find("button").removeAttr("disabled");
+            }
+        });
+
+        // Disable file input and submit button
+        $form.find("input").attr("disabled");
+        $form.find("button").attr("disabled");
+    });
 }
 
 say_hi($("h1"));
 make_table_sortable($("table.sortable"));
+make_form_async($("form.async-form"));
