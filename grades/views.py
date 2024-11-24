@@ -223,7 +223,8 @@ def profile(request):
             assignments.append({
                 "id": assignment.id,
                 "title": assignment.title,
-                "status": status
+                "status": status,
+                "weight": assignment.weight
             })
 
             # print(f"{assignment.title}:")

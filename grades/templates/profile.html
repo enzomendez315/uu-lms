@@ -64,7 +64,7 @@
             {% for assignment in assignments %}
             <tr data-index="{{forloop.counter}}">
                 <td> <a href="/{{assignment.id}}/">{{assignment.title}}</a> </td>
-                <td class="numeric-column" data-value="{{assignment.status}}">{{assignment.status}}</td>
+                <td class="numeric-column" data-value="{{assignment.status}}" data-weight="{{assignment.weight}}">{{assignment.status}}</td>
             </tr>
             {% endfor %}
         </tbody>
