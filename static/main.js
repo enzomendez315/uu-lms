@@ -134,33 +134,45 @@ function make_grade_hypothesized($table) {
         compute_current_grade($table);
     });
 
-    $table.on("keyup", "input[type='number']", compute_current_grade($table));
+    $table.on("keyup", "input[type='number']", () => {
+        compute_current_grade($table);
+    });
 }
 
 function compute_current_grade($table) {
     let earnedPoints = 0;
     let availablePoints = 0;
 
-    $table.find("tbody td").each(function() {
+    $table.find("tbody td.numeric-column").each(function() {
         const $tdElement = $(this);
-        const status = $tdElement.text();
-        const assignmentWeight = $tdElement.data("weight");
+        const assignmentWeight = parseFloat($tdElement.data("weight"));
+        const $inputElement = $tdElement.find("input");
 
-        if (status === "Not Due" || status === "Ungraded") {
-            return;
-        } else if (status === "Missing") {
+        if ($table.hasClass("hypothesized") && $inputElement.length > 0) {
+            if ($inputElement.val() === "") {
+                return;
+            }
+
+            const gradePercentage = parseFloat($inputElement.val()) / 100;
+            earnedPoints += gradePercentage * assignmentWeight;
             availablePoints += assignmentWeight;
         } else {
-            // grade_percentage = submission.score / assignment.points
-            const gradePercentage = parseFloat($tdElement.data("value"));
-            // earned_points += grade_percentage * assignment.weight
-            earnedPoints += gradePercentage * assignmentWeight;
-            // available_points += assignment.weight
-            availablePoints += assignmentWeight;
+            const originalValue = parseFloat($tdElement.data("value")) || 0;
+
+            if ($tdElement.text() === "Missing") {
+                availablePoints += assignmentWeight;
+            } else if ($tdElement.text() !== "Not Due" && $tdElement.text() !== "Ungraded") {
+                // Use original value for completed assignments
+                const gradePercentage = originalValue / 100;
+                earnedPoints += gradePercentage * assignmentWeight;
+                availablePoints += assignmentWeight;
+            }
         }
     });
 
-    const currentGrade = Math.round((earnedPoints / availablePoints) * 100);
+    // Round current grade to one decimal place
+    let currentGrade = (earnedPoints / availablePoints) * 100;
+    currentGrade = Math.round(currentGrade * 10) / 10;
     $table.find("tfoot td.numeric-column").text(`${currentGrade}%`);
 }
 
